@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deepseek-vllm
+  namespace: inference
+  labels:
+    app: deepseek-vllm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: deepseek-vllm
+  template:
+    metadata:
+      labels:
+        app: deepseek-vllm
+    spec:
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          args:
+            - --model
+            - deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+            - --tensor-parallel-size
+            - "1"
+            - --dtype
+            - bfloat16
+            - --max-model-len
+            - "32768"
+            - --gpu-memory-utilization
+            - "0.90"
+            - --port
+            - "8000"
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-credentials
+                  key: token
+          resources:
+            requests:
+              memory: "32Gi"
+              cpu: "8"
+              nvidia.com/gpu: "1"
+            limits:
+              memory: "64Gi"
+              cpu: "16"
+              nvidia.com/gpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 180
+            periodSeconds: 60
+          volumeMounts:
+            - name: hf-cache
+              mountPath: /root/.cache/huggingface
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: hf-cache
+          persistentVolumeClaim:
+            claimName: hf-model-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
+      nodeSelector:
+        nvidia.com/gpu.product: NVIDIA-H100-80GB-HBM3
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deepseek-vllm
+  namespace: inference
+spec:
+  selector:
+    app: deepseek-vllm
+  ports:
+    - port: 80
+      targetPort: 8000
+      name: http
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: deepseek-vllm-hpa
+  namespace: inference
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: deepseek-vllm
+  minReplicas: 1
+  maxReplicas: 8
+  metrics:
+    - type: Pods
+      pods:
+        metric:
+          name: vllm_gpu_cache_usage_perc
+        target:
+          type: AverageValue
+          averageValue: "70"

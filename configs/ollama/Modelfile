@@ -1,0 +1,21 @@
+# Ollama Modelfile for DeepSeek-R1 14B — optimized for RTX 5080
+# Usage: ollama create deepseek-r1-optimized -f configs/ollama/Modelfile
+
+FROM deepseek-r1:14b
+
+# Allow extended reasoning time
+PARAMETER num_ctx 16384
+PARAMETER num_predict 4096
+
+# Temperature 0 for deterministic reasoning tasks
+PARAMETER temperature 0.0
+PARAMETER top_p 0.95
+
+# Improve token generation speed on consumer GPUs
+PARAMETER num_gpu 99
+PARAMETER num_thread 12
+
+# Reasoning system prompt — preserves chain-of-thought
+SYSTEM """You are DeepSeek-R1, an advanced reasoning model.
+Think step-by-step before answering. Show your reasoning in <think> tags.
+Be precise and cite your reasoning when answering factual questions."""
