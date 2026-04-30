@@ -18,20 +18,19 @@ from __future__ import annotations
 
 import argparse
 import math
-from dataclasses import dataclass
-from typing import NamedTuple
 
 # ---------------------------------------------------------------------------
 # Re-use patterns/ dataclasses so the benchmark stays consistent with the
 # rest of the cookbook.
 # ---------------------------------------------------------------------------
 import sys
+from dataclasses import dataclass
 from pathlib import Path
+from typing import NamedTuple
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from patterns.inference_engines import EngineType, _ENGINE_BASELINES  # noqa: PLC2701
-
+from patterns.inference_engines import _ENGINE_BASELINES, EngineType
 
 # ---------------------------------------------------------------------------
 # Quantization performance modifiers (relative to BF16 baseline)

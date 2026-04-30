@@ -87,9 +87,7 @@ def _print_step_by_step_guide(cfg: ConsumerDeploymentConfig) -> None:
     print(f"    ollama pull {cfg.ollama_model_tag}")
     print()
     print(
-        "    This downloads the GGUF file (~{:.1f} GB). Grab a coffee.".format(
-            cfg.estimated_vram_gb
-        )
+        f"    This downloads the GGUF file (~{cfg.estimated_vram_gb:.1f} GB). Grab a coffee."
     )
 
     print()

@@ -23,18 +23,16 @@ import argparse
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from patterns.distilled_local import _CONSUMER_CONFIGS  # noqa: PLC2701
+from patterns.distilled_local import _CONSUMER_CONFIGS
 from patterns.quantization_mixed import (
-    QuantizationType,
     _BYTES_PER_PARAM,
     _QUALITY_DELTA,
+    QuantizationType,
     estimate_memory_gb,
 )
-
 
 # ---------------------------------------------------------------------------
 # Model catalogue — (size_b, arch) → layer/head metadata for KV estimation
@@ -121,7 +119,7 @@ class VRAMRecommendation:
     notes: list[str]
 
     @property
-    def ollama_tag(self) -> Optional[str]:
+    def ollama_tag(self) -> str | None:
         """Ollama pull tag from the pre-built config table, if available."""
         for (size_b, tier), cfg in _CONSUMER_CONFIGS.items():
             vram_tier = 24 if self.vram_gb >= 20 else 16
