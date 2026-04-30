@@ -86,9 +86,11 @@ def _print_step_by_step_guide(cfg: ConsumerDeploymentConfig) -> None:
     print(f"  {'─' * 60}")
     print(f"    ollama pull {cfg.ollama_model_tag}")
     print()
-    print("    This downloads the GGUF file (~{:.1f} GB). Grab a coffee.".format(
-        cfg.estimated_vram_gb
-    ))
+    print(
+        "    This downloads the GGUF file (~{:.1f} GB). Grab a coffee.".format(
+            cfg.estimated_vram_gb
+        )
+    )
 
     print()
     print("  Step 2 — Run with optimal context window")
@@ -101,17 +103,23 @@ def _print_step_by_step_guide(cfg: ConsumerDeploymentConfig) -> None:
     print()
     print("  Step 3 — Validate the deployment")
     print(f"  {'─' * 60}")
-    print("""    # Quick sanity test (should reply in < 10 seconds):
+    print(
+        """    # Quick sanity test (should reply in < 10 seconds):
     curl http://localhost:11434/api/generate \\
-      -d '{"model": \"""" + cfg.ollama_model_tag + """\", "prompt": "What is 2+2?", "stream": false}'
+      -d '{"model": \""""
+        + cfg.ollama_model_tag
+        + """\", "prompt": "What is 2+2?", "stream": false}'
 
     # OpenAI-compatible chat endpoint (works with LangChain / LlamaIndex):
     curl http://localhost:11434/v1/chat/completions \\
       -H "Content-Type: application/json" \\
       -d '{
-        "model": \"""" + cfg.ollama_model_tag + """\",
+        "model": \""""
+        + cfg.ollama_model_tag
+        + """\",
         "messages": [{"role": "user", "content": "Explain FP8 quantization."}]
-      }'""")
+      }'"""
+    )
 
     print()
     print("  Step 4 — (Optional) Expose as an OpenAI-compatible API server")
@@ -180,15 +188,19 @@ Examples:
   python examples/single_gpu_deployment.py --vram 24 --priority quality
 """,
     )
-    parser.add_argument("--vram", type=float, default=16,
-                        help="GPU VRAM in GB (default: 16)")
-    parser.add_argument("--size", type=float, default=0,
-                        help="Model size in billions (0 = auto-select)")
-    parser.add_argument("--priority", default="quality",
-                        choices=["quality", "speed", "balanced"],
-                        help="Selection priority when auto-choosing model (default: quality)")
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Print commands without interactive pauses")
+    parser.add_argument("--vram", type=float, default=16, help="GPU VRAM in GB (default: 16)")
+    parser.add_argument(
+        "--size", type=float, default=0, help="Model size in billions (0 = auto-select)"
+    )
+    parser.add_argument(
+        "--priority",
+        default="quality",
+        choices=["quality", "speed", "balanced"],
+        help="Selection priority when auto-choosing model (default: quality)",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Print commands without interactive pauses"
+    )
     args = parser.parse_args()
 
     # Resolve config
@@ -207,7 +219,9 @@ Examples:
     print(f"  Quantization : {cfg.recommended_quant}")
     print(f"  Est. VRAM    : {cfg.estimated_vram_gb:.1f} GB / {cfg.vram_gb:.0f} GB available")
     print(f"  Context len  : {cfg.context_len:,} tokens")
-    print(f"  Fits on GPU  : {'Yes — full GPU inference' if cfg.fits_fully_on_gpu else 'No — CPU offload required'}")
+    print(
+        f"  Fits on GPU  : {'Yes — full GPU inference' if cfg.fits_fully_on_gpu else 'No — CPU offload required'}"
+    )
 
     warnings = _validate_config(cfg)
     if warnings:

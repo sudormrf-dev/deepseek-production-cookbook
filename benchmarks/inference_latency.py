@@ -37,21 +37,22 @@ from patterns.inference_engines import EngineType, _ENGINE_BASELINES  # noqa: PL
 # Quantization performance modifiers (relative to BF16 baseline)
 # ---------------------------------------------------------------------------
 
+
 class QuantProfile(NamedTuple):
     """Speed and quality modifiers for a GGUF quantization level."""
 
     label: str
-    ttft_multiplier: float   # >1 = faster prefill (smaller model → less compute)
-    tpot_multiplier: float   # <1 = fewer bytes to load per token → faster
-    size_multiplier: float   # fraction of BF16 model size on disk / VRAM
+    ttft_multiplier: float  # >1 = faster prefill (smaller model → less compute)
+    tpot_multiplier: float  # <1 = fewer bytes to load per token → faster
+    size_multiplier: float  # fraction of BF16 model size on disk / VRAM
     quality_note: str
 
 
 _QUANT_PROFILES: dict[str, QuantProfile] = {
     "Q4_K_M": QuantProfile(
         label="Q4_K_M",
-        ttft_multiplier=1.55,   # 55% faster prefill vs BF16
-        tpot_multiplier=0.55,   # 45% faster token gen
+        ttft_multiplier=1.55,  # 55% faster prefill vs BF16
+        tpot_multiplier=0.55,  # 45% faster token gen
         size_multiplier=0.50,
         quality_note="Best quality/size — recommended default",
     ),
@@ -75,7 +76,7 @@ _QUANT_PROFILES: dict[str, QuantProfile] = {
 # Larger models are proportionally slower; 7B is the reference point.
 _MODEL_SCALE: dict[float, float] = {
     1.5: 0.28,
-    7.0: 1.00,   # reference
+    7.0: 1.00,  # reference
     14.0: 1.95,
     32.0: 4.40,
     70.0: 9.20,
@@ -85,6 +86,7 @@ _MODEL_SCALE: dict[float, float] = {
 # ---------------------------------------------------------------------------
 # Benchmark data structures
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class LatencyRow:
@@ -202,7 +204,9 @@ def render_table(rows: list[LatencyRow], model_size_b: float, concurrency: int) 
     )
     lines.append("")
     lines.append(title)
-    lines.append("  All numbers are simulated from published benchmarks. Run on real HW to validate.")
+    lines.append(
+        "  All numbers are simulated from published benchmarks. Run on real HW to validate."
+    )
     lines.append("")
     lines.append(_separator(widths, "-"))
     lines.append(_row_fmt(_HEADERS, widths))
@@ -212,17 +216,19 @@ def render_table(rows: list[LatencyRow], model_size_b: float, concurrency: int) 
     for r in rows:
         if prev_engine and prev_engine != r.engine:
             lines.append(_separator(widths, "-"))
-        lines.append(_row_fmt(
-            [
-                r.engine,
-                r.quant,
-                f"{r.ttft_ms:.1f}",
-                f"{r.tpot_ms:.2f}",
-                f"{r.throughput_tok_s:.1f}",
-                f"{r.e2e_200_tok_ms:.0f}",
-            ],
-            widths,
-        ))
+        lines.append(
+            _row_fmt(
+                [
+                    r.engine,
+                    r.quant,
+                    f"{r.ttft_ms:.1f}",
+                    f"{r.tpot_ms:.2f}",
+                    f"{r.throughput_tok_s:.1f}",
+                    f"{r.e2e_200_tok_ms:.0f}",
+                ],
+                widths,
+            )
+        )
         prev_engine = r.engine
 
     lines.append(_separator(widths, "-"))
@@ -245,6 +251,7 @@ def render_table(rows: list[LatencyRow], model_size_b: float, concurrency: int) 
 # Summary / recommendation
 # ---------------------------------------------------------------------------
 
+
 def _recommend(rows: list[LatencyRow]) -> str:
     """Return a one-line recommendation based on benchmark results."""
     best_ttft = min(rows, key=lambda r: r.ttft_ms)
@@ -264,6 +271,7 @@ def _recommend(rows: list[LatencyRow]) -> str:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def run_benchmark(model_size_b: float = 7.0, concurrency: int = 8) -> list[LatencyRow]:
     """Run the simulated benchmark and return all result rows.
@@ -296,10 +304,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Simulated inference latency comparison for DeepSeek distilled models"
     )
-    parser.add_argument("--model-size", type=float, default=7.0,
-                        help="Model size in billions (1.5, 7, 14, 32, 70)")
-    parser.add_argument("--concurrency", type=int, default=8,
-                        help="Number of concurrent requests to simulate")
+    parser.add_argument(
+        "--model-size", type=float, default=7.0, help="Model size in billions (1.5, 7, 14, 32, 70)"
+    )
+    parser.add_argument(
+        "--concurrency", type=int, default=8, help="Number of concurrent requests to simulate"
+    )
     args = parser.parse_args()
 
     if args.model_size not in _MODEL_SCALE:

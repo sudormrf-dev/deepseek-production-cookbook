@@ -30,7 +30,7 @@ def main() -> None:
             num_gpus=num_gpus,
             dtype_bytes=dtype_bytes,
         )
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Config: {label}")
         print(f"Strategy: {plan.strategy.value}")
         print(f"Total VRAM: {plan.total_vram_gb:.0f} GB")

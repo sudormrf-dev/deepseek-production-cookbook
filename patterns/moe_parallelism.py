@@ -262,9 +262,7 @@ def plan_moe_deployment(
             "Consider FP8 quantization (dtype_bytes=1) or more GPUs."
         )
     if not has_nvlink and tp > 1:
-        notes.append(
-            "PCIe bandwidth limits TP efficiency. Consider EP over TP for consumer GPUs."
-        )
+        notes.append("PCIe bandwidth limits TP efficiency. Consider EP over TP for consumer GPUs.")
     if gpu_tier in {GPUTier.RTX_5080, GPUTier.RTX_4090}:
         notes.append(
             "Consumer GPU detected. Use distilled models (7B-70B) for single-GPU deployment."

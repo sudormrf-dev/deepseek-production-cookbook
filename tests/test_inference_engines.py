@@ -14,7 +14,9 @@ from patterns.inference_engines import (
 
 class TestEngineConfig:
     def test_vllm_cmd_contains_model(self):
-        cfg = EngineConfig(engine=EngineType.VLLM, model="deepseek-ai/DeepSeek-V3", tensor_parallel_size=8)
+        cfg = EngineConfig(
+            engine=EngineType.VLLM, model="deepseek-ai/DeepSeek-V3", tensor_parallel_size=8
+        )
         cmd = cfg.to_launch_cmd()
         assert "deepseek-ai/DeepSeek-V3" in cmd
         assert "vllm" in cmd

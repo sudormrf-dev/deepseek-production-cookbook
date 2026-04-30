@@ -17,7 +17,7 @@ def main() -> None:
     engines = [EngineType.VLLM, EngineType.SGLANG, EngineType.TENSORRT_LLM]
 
     print("\nBenchmark: DeepSeek-R1-Distill-Qwen-70B, TP=4, H100x4")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     results = benchmark_engines(
         engines,
         model="deepseek-r1-distill-qwen-70b",
@@ -42,7 +42,7 @@ def main() -> None:
     print(f"\nLowest TTFT: {winner.engine.value} ({winner.ttft_ms:.0f} ms)")
 
     print("\n\nBenchmark: Interactive chat (concurrency=1, 256-token output)")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     interactive = benchmark_engines(
         engines,
         model="deepseek-r1-distill-qwen-7b",
